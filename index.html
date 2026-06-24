@@ -1,0 +1,2326 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="SIPGAT - Sistema Agrointeligente Integral para optimizar la toma de decisiones en el sector agroindustrial">
+  <title>SIPGAT – Sistema Agrointeligente Integral</title>
+  <link rel="stylesheet" href="styles.css">
+  
+  <!-- PWA Settings -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#8b5cf6">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="image copy.png">
+</head>
+
+<body>
+
+  <!-- MOBILE HEADER -->
+  <header class="mobile-header">
+    <button id="menuToggle" class="menu-toggle-btn">☰</button>
+    <div class="mobile-logo-title">SIPGAT</div>
+    <div style="width: 32px;"></div> <!-- Spacer to center title -->
+  </header>
+
+  <div class="app-layout">
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <img src="image copy.png" alt="Logo"
+          style="width: 36px; height: 36px; border-radius: var(--radius-md); object-fit: cover;">
+        <div>
+          <h1>SIPGAT</h1>
+          <span style="font-size:0.7rem; color:var(--text-muted)">Norte de Sinaloa</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">Usuario & Perfil</div>
+        <div class="nav-item active" data-page="perfil">
+          <span class="nav-icon">👤</span> Mi Perfil
+        </div>
+
+        <div class="nav-section-title">Principal</div>
+        <div class="nav-item" data-page="dashboard">
+          <span class="nav-icon">📊</span> Dashboard
+        </div>
+        <div class="nav-item" data-page="parcelas">
+          <span class="nav-icon">🗺️</span> Parcelas
+        </div>
+        <div class="nav-item" data-page="sensores">
+          <span class="nav-icon">📡</span> Sensores IoT
+        </div>
+        <div class="nav-item" data-page="analitica">
+          <span class="nav-icon">📈</span> Analítica
+          <span class="badge-beta">IA</span>
+        </div>
+        <div class="nav-item" data-page="calculadora">
+          <span class="nav-icon">🧮</span> Calculadora
+        </div>
+
+        <div class="nav-section-title">Operaciones</div>
+        <div class="nav-item" data-page="mercado">
+          <span class="nav-icon">📊</span> Mercados y Precios
+        </div>
+        <div class="nav-item" data-page="distribucion">
+          <span class="nav-icon">🤝</span> Comercialización
+        </div>
+        <div class="nav-item" data-page="logistica">
+          <span class="nav-icon">🚛</span> Logística y Transp.
+        </div>
+        <div class="nav-item" data-page="trazabilidad">
+          <span class="nav-icon">🔗</span> Trazabilidad
+        </div>
+        <div class="nav-item" data-page="analisis-lote">
+          <span class="nav-icon">🔍</span> Análisis de Lote
+        </div>
+        <div class="nav-item" data-page="basedatos">
+          <span class="nav-icon">🗄️</span> Base de Datos
+        </div>
+
+        <div class="nav-section-title">Herramientas</div>
+        <div class="nav-item" data-page="simulador-parcela">
+          <span class="nav-icon">🗺️</span> Simulador Terreno
+          <span class="badge">Nuevo</span>
+        </div>
+        <div class="nav-item" data-page="ia">
+          <span class="nav-icon">🤖</span> Asistente IA
+          <span class="badge">Nuevo</span>
+        </div>
+        <div class="nav-item" data-page="productos">
+          <span class="nav-icon">🧴</span> Productos
+        </div>
+
+        <!-- PARCELAS SECTION -->
+        <div class="parcelas-section">
+          <div class="parcelas-header" id="parcelasToggle">
+            <h3>Mis Parcelas <span class="count">4</span></h3>
+            <span class="toggle">▲</span>
+          </div>
+          <div class="parcelas-list" id="parcelasList">
+            <!-- Parcelas renderizadas dinámicamente -->
+          </div>
+        </div>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <button id="btnAddParcela">➕ Agregar Parcela</button>
+      </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main-content">
+
+      <!-- PAGE: Dashboard -->
+      <div class="page" id="page-dashboard">
+        <div class="main-header" style="flex-wrap: wrap; gap: 14px;">
+          <div style="display:flex; align-items:center; gap: 12px;">
+            <h2>Monitoreo en Tiempo Real</h2>
+            <select id="activeParcelaSelect" class="input-field" style="width: 200px; padding: 6px 36px 6px 12px; font-size: 0.85rem;" onchange="changeActiveParcela(this.value)">
+              <!-- Cargar parcelas dinámicamente -->
+            </select>
+          </div>
+          <div class="header-filters">
+            <button class="filter-btn active" data-range="24h">▾ 24H</button>
+            <button class="filter-btn" data-range="7d">▾ 7 Días</button>
+            <button class="filter-btn" data-range="30d">▾ 30 Días</button>
+            <button class="filter-btn" onclick="showToast('Para configurar tipos de sensores y nodos, vaya a la sección de Sensores IoT.', 'info')">▾ Tipo Sensor</button>
+          </div>
+        </div>
+
+        <!-- SENSOR CARDS -->
+        <div class="sensor-cards">
+          <!-- Card 1: Temperatura -->
+          <div class="sensor-card" id="cardTemp">
+            <div class="sensor-card-header">
+              <div class="sensor-badge">
+                <div class="sensor-icon" style="background:rgba(239,68,68,0.15);color:#ef4444">🌡️</div>
+                <div>
+                  <div class="sensor-label">Sensor Ambiental</div>
+                  <div class="sensor-name">Temperatura</div>
+                </div>
+              </div>
+              <a href="#" class="card-link" onclick="switchToPage('sensores'); return false;">↗</a>
+            </div>
+            <div class="sensor-value-row">
+              <div class="label">Valor Actual</div>
+              <div class="value" id="tempValue">28.5<span class="unit">°C</span></div>
+            </div>
+            <div class="sensor-change positive" id="tempChange">● +2.3%</div>
+            <div class="sensor-chart">
+              <canvas id="chartTemp"></canvas>
+              <div class="chart-value" id="chartTempVal">+1.2°C</div>
+            </div>
+          </div>
+
+          <!-- Card 2: Humedad -->
+          <div class="sensor-card" id="cardHumedad">
+            <div class="sensor-card-header">
+              <div class="sensor-badge">
+                <div class="sensor-icon" style="background:rgba(59,130,246,0.15);color:#3b82f6">💧</div>
+                <div>
+                  <div class="sensor-label">Sensor de Suelo</div>
+                  <div class="sensor-name">Humedad del Suelo</div>
+                </div>
+              </div>
+              <a href="#" class="card-link" onclick="switchToPage('sensores'); return false;">↗</a>
+            </div>
+            <div class="sensor-value-row">
+              <div class="label">Valor Actual</div>
+              <div class="value" id="humedadValue">67.2<span class="unit">%</span></div>
+            </div>
+            <div class="sensor-change positive" id="humedadChange">● +5.1%</div>
+            <div class="sensor-chart">
+              <canvas id="chartHumedad"></canvas>
+              <div class="chart-value" id="chartHumedadVal">+3.4%</div>
+            </div>
+          </div>
+
+          <!-- Card 3: Radiación -->
+          <div class="sensor-card" id="cardRadiacion">
+            <div class="sensor-card-header">
+              <div class="sensor-badge">
+                <div class="sensor-icon" style="background:rgba(245,158,11,0.15);color:#f59e0b">☀️</div>
+                <div>
+                  <div class="sensor-label">Sensor Solar</div>
+                  <div class="sensor-name">Radiación Solar</div>
+                </div>
+              </div>
+              <a href="#" class="card-link" onclick="switchToPage('sensores'); return false;">↗</a>
+            </div>
+            <div class="sensor-value-row">
+              <div class="label">Valor Actual</div>
+              <div class="value" id="radiacionValue">845<span class="unit"> W/m²</span></div>
+            </div>
+            <div class="sensor-change negative" id="radiacionChange">● -1.8%</div>
+            <div class="sensor-chart">
+              <canvas id="chartRadiacion"></canvas>
+              <div class="chart-value" id="chartRadiacionVal">-12 W/m²</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ACTIVE SECTION: Estado de Cultivos -->
+        <div class="active-section">
+          <div class="active-header">
+            <h3>Estado de Cultivos</h3>
+            <div class="actions">
+              <button title="Gráficos" onclick="switchToPage('analitica')">📉</button>
+              <button title="Agregar" onclick="switchToPage('parcelas')">➕</button>
+              <button title="Actualizar" onclick="simulateIoT(); if(window.cargarClimaReal) window.cargarClimaReal(); showToast('Mediciones y clima actualizados con éxito', 'success')">🔄</button>
+              <button title="Filtrar" onclick="const sel = document.getElementById('activeParcelaSelect'); if (sel) { sel.focus(); sel.classList.add('pulse-focus'); setTimeout(() => sel.classList.remove('pulse-focus'), 3000); } showToast('Seleccione una parcela para filtrar los datos', 'info')">⚙️</button>
+            </div>
+          </div>
+
+          <div class="cultivo-card">
+            <!-- LEFT: Cultivo Info -->
+            <div class="cultivo-info">
+              <div class="last-update">Última actualización ~ hace 15 min 🕐</div>
+
+              <div class="cultivo-title">
+                <h3 id="dashParcelaName">Parcela Norte</h3>
+                <div class="cultivo-icon-big" id="dashParcelaIcon"
+                  style="background:rgba(16,185,129,0.15);color:#10b981;border-radius:8px">🌽</div>
+                <div class="action-icons">
+                  <button onclick="switchToPage('basedatos')">📋</button>
+                  <button onclick="window.exportarCSVParcela()">📤</button>
+                </div>
+                <a href="#" class="view-profile" onclick="switchToPage('perfil'); return false;">Ver Perfil ↗</a>
+              </div>
+
+              <div class="cultivo-balance">
+                <div class="balance-label">Producción Estimada, Toneladas</div>
+                <div class="balance-value" id="produccionValue">42.85</div>
+              </div>
+
+              <div class="cultivo-actions">
+                <button class="btn-action primary" onclick="switchToPage('parcelas')">Ver Detalle</button>
+                <button class="btn-action secondary" onclick="window.generarReportePDFParcela()">Generar Reporte</button>
+              </div>
+
+              <!-- TABS -->
+              <div class="cultivo-tabs">
+                <div class="tab-item active" data-tab="clima">
+                  <div class="tab-label">🌤️ Clima</div>
+                  <div class="tab-sub">Condiciones</div>
+                </div>
+                <div class="tab-item" data-tab="suelo">
+                  <div class="tab-label">🌍 Suelo</div>
+                  <div class="tab-sub">Análisis</div>
+                </div>
+                <div class="tab-item" data-tab="produccion">
+                  <div class="tab-label">📦 Producción</div>
+                  <div class="tab-sub">Rendimiento</div>
+                </div>
+                <div class="tab-item" data-tab="recomendaciones">
+                  <div class="tab-label">💡 Recomend.</div>
+                  <div class="tab-sub">Sugerencias</div>
+                </div>
+              </div>
+
+              <!-- TAB CONTENTS -->
+              <div class="tab-content active" id="tab-clima">
+                <div class="tab-content-grid">
+                  <div class="data-item">
+                    <div class="data-label">Temperatura Real <span id="dashClimaBadge" class="badge-sm"
+                        style="background:var(--accent-green-bg);color:var(--accent-green)">Cargando</span></div>
+                    <div class="data-value" id="dashClimaTemp">--°C</div>
+                  </div>
+                  <div class="data-item">
+                    <div class="data-label">Precipitación</div>
+                    <div class="data-value" id="dashClimaLluvia">-- mm</div>
+                  </div>
+                  <div class="data-item">
+                    <div class="data-label">Humedad Relativa</div>
+                    <div class="data-value" id="dashClimaHum">--%</div>
+                  </div>
+                  <div class="data-item">
+                    <div class="data-label">Viento</div>
+                    <div class="data-value" id="dashClimaViento">-- km/h</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tab-content" id="tab-suelo">
+                <div class="tab-content-grid">
+                  <div class="data-item">
+                    <div class="data-label">pH del Suelo <span class="badge-sm"
+                        style="background:var(--accent-amber-bg);color:var(--accent-amber)">Revisar</span></div>
+                    <div class="data-value">6.2</div>
+                  </div>
+                  <div class="data-item">
+                    <div class="data-label">Nitrógeno (N)</div>
+                    <div class="data-value">45 ppm</div>
+                  </div>
+                  <div class="data-item">
+                    <div class="data-label">Fósforo (P)</div>
+                    <div class="data-value">28 ppm</div>
+                  </div>
+                  <div class="data-item">
+                    <div class="data-label">Potasio (K)</div>
+                    <div class="data-value">180 ppm</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tab-content" id="tab-produccion">
+                <div class="tab-content-grid">
+                  <div class="data-item">
+                    <div class="data-label">Rendimiento Estimado <span class="badge-sm"
+                        style="background:var(--accent-green-bg);color:var(--accent-green)">+12%</span></div>
+                    <div class="data-value">3.42 ton/ha</div>
+                  </div>
+                  <div class="data-item">
+                    <div class="data-label">Área Sembrada</div>
+                    <div class="data-value" id="dashParcelaArea">12.5 ha</div>
+                  </div>
+                  <div class="data-item">
+                    <div class="data-label">Días desde Siembra</div>
+                    <div class="data-value">87 días</div>
+                  </div>
+                  <div class="data-item">
+                    <div class="data-label">Cosecha Estimada</div>
+                    <div class="data-value">15 Jun 2026</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tab-content" id="tab-recomendaciones">
+                <div class="tab-content-grid">
+                  <div class="data-item">
+                    <div class="data-label">💧 Riego <span class="badge-sm"
+                        style="background:var(--accent-blue-bg);color:var(--accent-blue)">Programar</span></div>
+                    <div class="data-value">Regar mañana 6AM</div>
+                  </div>
+                  <div class="data-item">
+                    <div class="data-label">🧪 Fertilización</div>
+                    <div class="data-value">Aplicar N en 5 días</div>
+                  </div>
+                  <div class="data-item">
+                    <div class="data-label">🐛 Plagas <span class="badge-sm"
+                        style="background:var(--accent-green-bg);color:var(--accent-green)">Sin riesgo</span></div>
+                    <div class="data-value">Todo normal</div>
+                  </div>
+                  <div class="data-item">
+                    <div class="data-label">🌾 Cultivo Sugerido</div>
+                    <div class="data-value">Rotación: Soja</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- RIGHT: Ciclo Panel -->
+            <div class="ciclo-panel">
+              <h4>
+                Ciclo de Cultivo
+                <span class="phase-badge">Crecimiento</span>
+              </h4>
+              <div class="ciclo-sub">Progreso del ciclo productivo</div>
+
+              <div class="ciclo-phases">
+                <span class="phase-pill">Preparación</span>
+                <span class="phase-pill">Siembra</span>
+                <span class="phase-pill active">Crecimiento</span>
+                <span class="phase-pill">Cosecha</span>
+              </div>
+
+              <div class="ciclo-slider">
+                <input type="range" id="cicloSlider" min="0" max="100" value="62">
+              </div>
+
+              <div
+                style="display:flex;justify-content:space-between;margin-top:8px;font-size:0.72rem;color:var(--text-muted)">
+                <span>Día 0</span>
+                <span id="cicloDay">Día 87 / 140</span>
+                <span>Día 140</span>
+              </div>
+
+              <!-- Mini stats -->
+              <div style="margin-top:24px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div class="data-item">
+                  <div class="data-label">🌱 Salud</div>
+                  <div class="data-value" style="color:var(--accent-green)">Excelente</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">💧 Riego</div>
+                  <div class="data-value" style="color:var(--accent-blue)">Óptimo</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">📊 Eficiencia</div>
+                  <div class="data-value">94.2%</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">⚠️ Alertas</div>
+                  <div class="data-value" style="color:var(--accent-amber)">1 activa</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- end page-dashboard -->
+
+      <!-- PAGE: Parcelas -->
+      <div class="page" id="page-parcelas">
+        <div class="main-header">
+          <h2>Gestión de Parcelas</h2>
+          <button class="btn-action primary" onclick="toggleAddParcelaForm(true)">➕ Nueva Parcela</button>
+        </div>
+
+        <!-- Formulario inline para agregar/editar parcelas -->
+        <div class="inline-form-container" id="parcelaFormContainer">
+          <h3 id="parcelaFormTitle" style="margin-bottom: 14px; font-size: 1.1rem; color: var(--accent-purple);">Agregar Nueva Parcela</h3>
+          <form id="formParcela" onsubmit="guardarParcelaSubmit(event)">
+            <input type="hidden" id="parcelaFormId">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Nombre de la Parcela</label>
+                <input type="text" id="parcelaFormNombre" class="input-field" placeholder="Ej. Lote El Colorado" required>
+              </div>
+              <div class="form-group">
+                <label>Cultivo</label>
+                <select id="parcelaFormCultivo" class="input-field" required>
+                  <option value="Maíz Blanco">🌽 Maíz Blanco</option>
+                  <option value="Frijol Azufrado">🫘 Frijol Azufrado</option>
+                  <option value="Trigo">🌾 Trigo</option>
+                  <option value="Tomate">🍅 Tomate</option>
+                  <option value="Sorgo">🌾 Sorgo</option>
+                  <option value="Soja">🫛 Soja</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Hectáreas</label>
+                <input type="number" step="0.1" min="0.1" id="parcelaFormHectareas" class="input-field" placeholder="Ej. 10.5" required>
+              </div>
+              <div class="form-group">
+                <label>Icono</label>
+                <select id="parcelaFormIcon" class="input-field">
+                  <option value="🌽">🌽 Maíz</option>
+                  <option value="🫘">🫘 Frijol</option>
+                  <option value="🌾">🌾 Trigo / Sorgo</option>
+                  <option value="🍅">🍅 Tomate</option>
+                  <option value="🫛">🫛 Soja</option>
+                  <option value="🌱">🌱 Brote general</option>
+                </select>
+              </div>
+            </div>
+            <div class="card-actions">
+              <button type="button" class="btn-action secondary btn-small" onclick="toggleAddParcelaForm(false)">Cancelar</button>
+              <button type="submit" class="btn-action primary btn-small" id="btnSubmitParcela">Guardar Parcela</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="sensor-cards" id="parcelasPageCards" style="grid-template-columns:repeat(2,1fr); margin-top: 20px;">
+          <!-- Tarjetas de parcelas renderizadas dinámicamente -->
+        </div>
+      </div>
+
+      <!-- PAGE: Sensores IoT -->
+      <div class="page" id="page-sensores">
+        <div class="main-header">
+          <h2>Red de Sensores IoT</h2>
+          <button class="btn-action primary" onclick="toggleAddSensorForm(true)">➕ Vincular Sensor</button>
+        </div>
+
+        <!-- Formulario inline para vincular nuevos sensores -->
+        <div class="inline-form-container" id="sensorFormContainer">
+          <h3 style="margin-bottom: 14px; font-size: 1.1rem; color: var(--accent-purple);">Registrar y Vincular Nuevo Nodo Sensor</h3>
+          <form id="formSensor" onsubmit="guardarSensorSubmit(event)">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Nombre del Nodo</label>
+                <input type="text" id="sensorFormNombre" class="input-field" placeholder="Ej. Nodo #4 - Humedad" required>
+              </div>
+              <div class="form-group">
+                <label>Tipo de Sensor</label>
+                <select id="sensorFormTipo" class="input-field" required>
+                  <option value="Multivariable">📡 Multivariable (Temp/Hum/Rad)</option>
+                  <option value="Humedad">💧 Humedad del Suelo</option>
+                  <option value="Meteorológico">☀️ Estación Meteorológica</option>
+                  <option value="Temperatura">🌡️ Temperatura Ambiental</option>
+                  <option value="Radiación">☀️ Radiación Solar</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Asociar a Parcela</label>
+                <select id="sensorFormParcela" class="input-field" required>
+                  <!-- Cargado dinámicamente -->
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Frecuencia de Muestreo</label>
+                <select id="sensorFormFrecuencia" class="input-field">
+                  <option value="5 min">Cada 5 minutos</option>
+                  <option value="10 min">Cada 10 minutos</option>
+                  <option value="15 min">Cada 15 minutos</option>
+                  <option value="30 min">Cada 30 minutos</option>
+                </select>
+              </div>
+            </div>
+            <div class="card-actions">
+              <button type="button" class="btn-action secondary btn-small" onclick="toggleAddSensorForm(false)">Cancelar</button>
+              <button type="submit" class="btn-action primary btn-small">Registrar Nodo</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="sensor-cards" id="sensoresPageCards" style="margin-top: 20px;">
+          <!-- Tarjetas de sensores renderizadas dinámicamente -->
+        </div>
+
+        <div class="active-section">
+          <div class="active-header">
+            <h3>Historial de Lecturas</h3>
+          </div>
+          <div class="cultivo-card" style="grid-template-columns:1fr">
+            <div class="cultivo-info">
+              <div class="tab-content-grid">
+                <div class="data-item">
+                  <div class="data-label">Total sensores</div>
+                  <div class="data-value" id="statsTotalSensores">3 activos</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Lecturas hoy</div>
+                  <div class="data-value" id="statsLecturasHoy">1,247</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Anomalías detectadas</div>
+                  <div class="data-value" style="color:var(--accent-amber)" id="statsAnomalias">2</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Uptime de Red</div>
+                  <div class="data-value" style="color:var(--accent-green)">99.2%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE: Analítica -->
+      <div class="page" id="page-analitica">
+        <div class="main-header">
+          <h2>Analítica Predictiva (Simulador de Rendimiento)</h2>
+          <div class="header-filters"><span class="badge-beta" style="font-size:0.8rem;padding:4px 12px">Potenciado por IA</span></div>
+        </div>
+        
+        <p style="color:var(--text-muted);margin-bottom:16px">Modela escenarios modificando el riego, la fertilización y las fechas de siembra para evaluar el impacto en el rendimiento de tu cosecha y márgenes financieros.</p>
+        
+        <div class="sensor-cards" style="grid-template-columns: 320px 1fr; gap: 16px; margin-bottom: 20px;">
+          
+          <!-- PANEL DE CONTROLES (IZQUIERDA) -->
+          <div class="sensor-card" style="padding: 16px; background: var(--bg-secondary); border-top: 3px solid var(--accent-purple);">
+            <h3 style="font-size: 1rem; margin-bottom: 16px; color: var(--text-primary)">⚙️ Parámetros de Simulación</h3>
+            
+            <div style="margin-bottom: 14px;">
+              <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 6px;">Seleccionar Parcela:</label>
+              <select id="analiticaParcelaSelect" class="input-field" style="width:100%" onchange="window.actualizarSimuladorAnalitica()">
+                <!-- Populated via JS -->
+              </select>
+            </div>
+            
+            <div style="margin-bottom: 14px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <label style="font-size: 0.75rem; color: var(--text-muted);">Suministro de Riego:</label>
+                <span id="lblSimRiego" style="font-size: 0.85rem; color: var(--accent-blue); font-weight: bold;">0%</span>
+              </div>
+              <input type="range" id="sliderSimRiego" min="-50" max="50" value="0" step="5" style="width: 100%; accent-color: var(--accent-blue);" oninput="window.actualizarSimuladorAnalitica()">
+            </div>
+            
+            <div style="margin-bottom: 14px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <label style="font-size: 0.75rem; color: var(--text-muted);">Dosis de Fertilización:</label>
+                <span id="lblSimFert" style="font-size: 0.85rem; color: var(--accent-green); font-weight: bold;">0%</span>
+              </div>
+              <input type="range" id="sliderSimFert" min="-50" max="50" value="0" step="5" style="width: 100%; accent-color: var(--accent-green);" oninput="window.actualizarSimuladorAnalitica()">
+            </div>
+            
+            <div style="margin-bottom: 14px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <label style="font-size: 0.75rem; color: var(--text-muted);">Fecha de Siembra:</label>
+                <span id="lblSimSiembra" style="font-size: 0.85rem; color: var(--accent-amber); font-weight: bold;">Semana Óptima</span>
+              </div>
+              <input type="range" id="sliderSimSiembra" min="-4" max="4" value="0" step="1" style="width: 100%; accent-color: var(--accent-amber);" oninput="window.actualizarSimuladorAnalitica()">
+            </div>
+          </div>
+          
+          <!-- CUADRO DE RESULTADOS PRINCIPALES (DERECHA) -->
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+              
+              <!-- Card 1: Producción Estimada -->
+              <div class="sensor-card" style="padding: 16px;">
+                <div class="sensor-card-header">
+                  <div class="sensor-badge">
+                    <div class="sensor-icon" style="background:rgba(139,92,246,0.15);color:#8b5cf6">🧠</div>
+                    <div>
+                      <div class="sensor-label">Cosecha Predictiva</div>
+                      <div class="sensor-name" id="lblCosechaName">Maíz Blanco</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="sensor-value-row" style="margin-top: 10px;">
+                  <div class="label" style="font-size: 0.75rem; color: var(--text-muted);">Volumen Esperado</div>
+                  <div class="value" id="valSimCosecha">42.8<span class="unit"> ton</span></div>
+                </div>
+                <div class="sensor-change" id="valSimCosechaChange" style="font-size: 0.75rem;">● Baseline: 38.4 ton</div>
+              </div>
+              
+              <!-- Card 2: Clima Local -->
+              <div class="sensor-card" style="padding: 16px;">
+                <div class="sensor-card-header">
+                  <div class="sensor-badge">
+                    <div class="sensor-icon" style="background:rgba(59,130,246,0.15);color:#3b82f6">🌦️</div>
+                    <div>
+                      <div class="sensor-label" id="lblClimaRegion">Valle del Fuerte</div>
+                      <div class="sensor-name">Próximos 7 días</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="sensor-value-row" style="margin-top: 10px;">
+                  <div class="label" style="font-size: 0.75rem; color: var(--text-muted);">Prob. de Lluvia</div>
+                  <div class="value" id="valSimLluvia">12<span class="unit">%</span></div>
+                </div>
+                <div class="sensor-change" id="valSimClimaEstado" style="font-size: 0.75rem;">● Soleado, templado</div>
+              </div>
+              
+              <!-- Card 3: Impacto de Recursos -->
+              <div class="sensor-card" style="padding: 16px;">
+                <div class="sensor-card-header">
+                  <div class="sensor-badge">
+                    <div class="sensor-icon" style="background:rgba(16,185,129,0.15);color:#10b981">📊</div>
+                    <div>
+                      <div class="sensor-label">Eficiencia de Insumos</div>
+                      <div class="sensor-name">Índice Operativo</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="sensor-value-row" style="margin-top: 10px;">
+                  <div class="label" style="font-size: 0.75rem; color: var(--text-muted);">Calificación</div>
+                  <div class="value" id="valSimEficiencia">100<span class="unit">%</span></div>
+                </div>
+                <div class="sensor-change" id="valSimEficienciaChange" style="font-size: 0.75rem;">● Suministro óptimo</div>
+              </div>
+              
+            </div>
+            
+            <!-- PANEL AGRONÓMICO Y FINANCIERO -->
+            <div class="sensor-card" style="padding: 16px;">
+              <h3 style="font-size: 1rem; margin-bottom: 12px; color: var(--accent-purple);">📋 Diagnóstico Agronómico y Costos del Escenario</h3>
+              
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                
+                <!-- Diagnóstico de Planta -->
+                <div style="border-right: 1px solid var(--border-color); padding-right: 20px;">
+                  <h4 style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 8px;">🌱 Impacto en Fisiología del Cultivo</h4>
+                  <div id="simPlantaDiag" style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary)">
+                    Cargando diagnóstico fisiológico...
+                  </div>
+                </div>
+                
+                <!-- Desglose de Costos e Ingresos -->
+                <div>
+                  <h4 style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 8px;">💰 Rendimiento Financiero Comparativo</h4>
+                  <ul style="font-size: 0.85rem; line-height: 1.6; color: var(--text-secondary); padding-left: 20px; list-style-type: none; margin: 0; padding: 0;">
+                    <li style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                      <span>Costo de Insumos (Variación):</span>
+                      <strong id="finSimCostoDelta">$0 USD</strong>
+                    </li>
+                    <li style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                      <span>Ingreso Bruto (Proyectado):</span>
+                      <strong id="finSimIngreso">$0 USD</strong>
+                    </li>
+                    <li style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                      <span>Ganancia Neta (Variación):</span>
+                      <strong id="finSimGananciaDelta" style="color:var(--accent-green)">$0 USD</strong>
+                    </li>
+                    <li style="display:flex; justify-content:space-between; margin-top:8px; border-top:1px solid var(--border-color); padding-top:6px;">
+                      <span>Retorno de Inversión (ROI):</span>
+                      <strong id="finSimROI">0.0%</strong>
+                    </li>
+                  </ul>
+                </div>
+                
+              </div>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+
+
+      <!-- PAGE: Trazabilidad -->
+      <div class="page" id="page-trazabilidad">
+        <div class="main-header">
+          <h2>Trazabilidad Sinaloense</h2>
+        </div>
+        
+        <div class="cultivo-card" style="grid-template-columns:1fr; margin-bottom: 20px;">
+          <div class="cultivo-info">
+            <label style="font-size:0.85rem;color:var(--text-muted);display:block;margin-bottom:8px">Selecciona un lote cosechado para generar el certificado de origen:</label>
+            <select class="input-field" id="trazabilidadLoteSelect" style="width:100%;" onchange="mostrarTrazabilidadLote(this.value)">
+              <!-- Cargado dinámicamente -->
+            </select>
+          </div>
+        </div>
+
+        <div id="trazabilidadVacio" style="display:none; text-align:center; padding: 40px; color:var(--text-secondary); background:var(--bg-secondary); border-radius:12px; border: 1px dashed var(--border-color);">
+          <span style="font-size: 2.5rem; display:block; margin-bottom: 12px;">🔍</span>
+          No hay lotes de cosecha registrados. Registra un lote en la sección de <strong>Análisis de Lote</strong> primero.
+        </div>
+
+        <div id="trazabilidadDetalle" style="display:block;">
+          <div class="sensor-cards" style="grid-template-columns: 1.2fr 0.8fr; gap: 20px; align-items: start;">
+            <!-- Certificado de Origen Card -->
+            <div class="sensor-card" style="border: 1px solid rgba(139,92,246,0.3); background: linear-gradient(145deg, rgba(139,92,246,0.05), var(--bg-card)); padding: 24px; position:relative;">
+              <div style="position:absolute; top: 20px; right: 20px; font-size: 0.7rem; background: rgba(16,185,129,0.15); color: #10b981; padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(16,185,129,0.3); font-weight: 600;">
+                🟢 VERIFICADO (SIP-BLOCK)
+              </div>
+              <h3 style="font-size: 1.25rem; color: var(--text-primary); margin-bottom: 4px; display:flex; align-items:center; gap: 8px;">
+                📜 Certificado de Origen Digital
+              </h3>
+              <p style="font-size: 0.75rem; color: var(--text-muted); font-family: monospace; margin-bottom: 20px;" id="traHash">HASH: --</p>
+              
+              <div class="tab-content-grid" style="grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                <div class="data-item">
+                  <div class="data-label">🌾 Cultivo</div>
+                  <div class="data-value" id="traCultivo">-</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">📍 Parcela de Origen</div>
+                  <div class="data-value" id="traParcela">-</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">📐 Hectáreas</div>
+                  <div class="data-value" id="traHectareas">-</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">📊 Rendimiento Real</div>
+                  <div class="data-value" id="traRendimiento">-</div>
+                </div>
+                <div class="data-item" style="grid-column: span 2; background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; border-left: 3px solid var(--accent-purple);">
+                  <div class="data-label" style="font-size: 0.75rem;">⚖️ Producción Total Certificada</div>
+                  <div class="data-value" id="traProduccionTotal" style="font-size: 1.6rem; font-weight: 700; color: var(--text-primary);">-</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">📅 Fecha de Registro</div>
+                  <div class="data-value" id="traFecha">-</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">💧 Agua Utilizada</div>
+                  <div class="data-value" id="traAgua">-</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">⭐ Calidad Obtenida</div>
+                  <div class="data-value" id="traCalidad">-</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">🤝 Comprador Destinatario</div>
+                  <div class="data-value" id="traComprador" style="color: var(--accent-green); font-weight: 600;">-</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- QR Verification & Timeline -->
+            <div style="display:flex; flex-direction:column; gap: 20px;">
+              <!-- QR Block -->
+              <div class="sensor-card" style="padding: 20px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;">
+                <div style="background: white; padding: 10px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); display:inline-block; margin-bottom: 12px;">
+                  <canvas id="canvasQR" width="140" height="140" style="display:block;"></canvas>
+                </div>
+                <h4 style="font-size: 0.85rem; color: var(--text-primary); margin-bottom: 4px;">Escaneo QR de Trazabilidad</h4>
+                <p style="font-size: 0.75rem; color: var(--text-secondary); line-height: 1.4;">Este código permite a compradores finales rastrear el origen completo de esta cosecha.</p>
+              </div>
+
+              <!-- Blockchain Audit Timeline -->
+              <div class="sensor-card" style="padding: 20px;">
+                <h4 style="font-size: 0.9rem; color: var(--text-primary); margin-bottom: 16px; display:flex; align-items:center; gap: 8px;">
+                  🔗 Auditoría de Trazabilidad
+                </h4>
+                
+                <div style="display:flex; flex-direction:column; gap: 16px; position:relative; padding-left: 20px; border-left: 2px dashed rgba(255,255,255,0.1);">
+                  <!-- Step 1 -->
+                  <div style="position:relative;">
+                    <div style="position:absolute; left: -26px; top: 0; width: 10px; height: 10px; background:#10b981; border-radius:50%; border: 3px solid var(--bg-card);"></div>
+                    <div style="font-size:0.75rem; font-weight:600; color:var(--text-primary);">1. Preparación del Suelo</div>
+                    <div style="font-size:0.7rem; color:var(--text-muted);" id="timelineSuelo">-</div>
+                  </div>
+                  <!-- Step 2 -->
+                  <div style="position:relative;">
+                    <div style="position:absolute; left: -26px; top: 0; width: 10px; height: 10px; background:#10b981; border-radius:50%; border: 3px solid var(--bg-card);"></div>
+                    <div style="font-size:0.75rem; font-weight:600; color:var(--text-primary);">2. Siembra Registrada</div>
+                    <div style="font-size:0.7rem; color:var(--text-muted);" id="timelineSiembra">-</div>
+                  </div>
+                  <!-- Step 3 -->
+                  <div style="position:relative;">
+                    <div style="position:absolute; left: -26px; top: 0; width: 10px; height: 10px; background:#10b981; border-radius:50%; border: 3px solid var(--bg-card);"></div>
+                    <div style="font-size:0.75rem; font-weight:600; color:var(--text-primary);">3. Monitoreo IoT (Ciclo)</div>
+                    <div style="font-size:0.7rem; color:var(--text-muted);" id="timelineIot">-</div>
+                  </div>
+                  <!-- Step 4 -->
+                  <div style="position:relative;">
+                    <div style="position:absolute; left: -26px; top: 0; width: 10px; height: 10px; background:var(--accent-purple); border-radius:50%; border: 3px solid var(--bg-card);"></div>
+                    <div style="font-size:0.75rem; font-weight:600; color:var(--text-primary);">4. Cosecha y Cierre</div>
+                    <div style="font-size:0.7rem; color:var(--text-muted);" id="timelineCosecha">-</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE: Calculadora -->
+      <div class="page" id="page-calculadora">
+        <div class="main-header">
+          <h2>Calculadora Agrícola Regional</h2>
+        </div>
+        <div class="sensor-cards" style="grid-template-columns: 1fr 1.2fr; gap: 20px;">
+          <!-- PARÁMETROS DE ENTRADA -->
+          <div class="sensor-card">
+            <h3 style="font-size:1.1rem; color:var(--accent-purple); margin-bottom: 16px;">⚙️ Configuración de Parámetros</h3>
+            <form id="calcForm" oninput="calcularRentabilidad()">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Área de Cultivo (ha)</label>
+                  <input type="number" id="calcHa" class="input-field" value="12.5" min="0.1" step="0.1">
+                </div>
+                <div class="form-group">
+                  <label>Tipo de Cultivo</label>
+                  <select id="calcCultivo" class="input-field" onchange="actualizarValoresPorDefectoCalc(this.value)">
+                    <option value="Maíz Blanco">🌽 Maíz Blanco</option>
+                    <option value="Frijol Azufrado">🫘 Frijol Azufrado</option>
+                    <option value="Trigo">🌾 Trigo</option>
+                    <option value="Tomate">🍅 Tomate</option>
+                    <option value="Sorgo">🌾 Sorgo</option>
+                    <option value="Soja">🫛 Soja</option>
+                  </select>
+                </div>
+              </div>
+
+              <h4 style="font-size:0.9rem; color:var(--text-secondary); margin: 14px 0 8px;">Costos Unitarios (USD por Hectárea)</h4>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Semilla ($)</label>
+                  <input type="number" id="calcCostSemilla" class="input-field" value="150" min="0">
+                </div>
+                <div class="form-group">
+                  <label>Fertilizante ($)</label>
+                  <input type="number" id="calcCostFert" class="input-field" value="256" min="0">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Riego ($)</label>
+                  <input type="number" id="calcCostRiego" class="input-field" value="168" min="0">
+                </div>
+                <div class="form-group">
+                  <label>Mano de Obra ($)</label>
+                  <input type="number" id="calcCostMano" class="input-field" value="360" min="0">
+                </div>
+              </div>
+
+              <h4 style="font-size:0.9rem; color:var(--text-secondary); margin: 14px 0 8px;">Proyección de Ventas</h4>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Rendimiento (ton/ha)</label>
+                  <input type="number" id="calcYield" class="input-field" value="11.0" min="0.1" step="0.1">
+                </div>
+                <div class="form-group">
+                  <label>Precio Venta ($/ton)</label>
+                  <input type="number" id="calcPrice" class="input-field" value="420" min="0">
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- RESULTADOS -->
+          <div style="display:flex; flex-direction:column; gap:16px;">
+            <!-- Desglose de Costos -->
+            <div class="sensor-card">
+              <div class="sensor-card-header">
+                <div class="sensor-badge">
+                  <div class="sensor-icon" style="background:rgba(16,185,129,0.15);color:#10b981">💰</div>
+                  <div>
+                    <div class="sensor-label">Desglose Estimado</div>
+                    <div class="sensor-name">Costo de Producción</div>
+                  </div>
+                </div>
+              </div>
+              <div class="tab-content-grid" style="margin-top:14px">
+                <div class="data-item">
+                  <div class="data-label" id="lblCalcSemilla">Semilla (12.5 ha)</div>
+                  <div class="data-value" id="valCalcSemilla">$1,875</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label" id="lblCalcFert">Fertilizantes</div>
+                  <div class="data-value" id="valCalcFert">$3,200</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label" id="lblCalcRiego">Riego</div>
+                  <div class="data-value" id="valCalcRiego">$2,100</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label" id="lblCalcMano">Mano de obra</div>
+                  <div class="data-value" id="valCalcMano">$4,500</div>
+                </div>
+              </div>
+              <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border-color)">
+                <div class="sensor-value-row">
+                  <div class="label">Costo total estimado</div>
+                  <div class="value" style="font-size:1.6rem" id="valCalcTotalCosto">$11,675</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Proyección Financiera -->
+            <div class="sensor-card">
+              <div class="sensor-card-header">
+                <div class="sensor-badge">
+                  <div class="sensor-icon" style="background:rgba(139,92,246,0.15);color:#8b5cf6">📈</div>
+                  <div>
+                    <div class="sensor-label">Rentabilidad Esperada</div>
+                    <div class="sensor-name">Proyección y Retorno</div>
+                  </div>
+                </div>
+              </div>
+              <div class="tab-content-grid" style="margin-top:14px">
+                <div class="data-item">
+                  <div class="data-label">Producción total est.</div>
+                  <div class="data-value" id="valCalcTotalProd">137.5 ton</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Precio de mercado</div>
+                  <div class="data-value" id="valCalcPrecioMercado">$420/ton</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Ingreso bruto</div>
+                  <div class="data-value" style="color:var(--accent-green)" id="valCalcIngresoBruto">$57,750</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Ganancia neta</div>
+                  <div class="data-value" style="color:var(--accent-green)" id="valCalcGananciaNeta">$46,075</div>
+                </div>
+              </div>
+              <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border-color)">
+                <div class="sensor-value-row">
+                  <div class="label">ROI estimado</div>
+                  <div class="value" style="font-size:1.6rem;color:var(--accent-green)" id="valCalcRoi">394.6<span class="unit">%</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- PAGE: Mercado Agrícola -->
+      <div class="page" id="page-mercado">
+        <div class="main-header">
+          <h2>Mercado Agrícola</h2>
+          <div class="header-filters"><span class="badge-beta" style="font-size:0.8rem;padding:4px 12px">Datos en
+              vivo</span></div>
+        </div>
+
+        <!-- Producción de otros agricultores -->
+        <h3 style="margin-bottom:14px;font-size:1rem">🌾 Producción Regional de Otros Agricultores</h3>
+        <div class="sensor-cards" style="grid-template-columns:repeat(2,1fr);margin-bottom:28px">
+          <div class="sensor-card">
+            <div class="sensor-card-header">
+              <div class="sensor-badge">
+                <div class="sensor-icon" style="background:rgba(16,185,129,0.15);color:#10b981">👨‍🌾</div>
+                <div>
+                  <div class="sensor-label">Valle del Fuerte — 15 productores</div>
+                  <div class="sensor-name">Maíz Blanco</div>
+                </div>
+              </div>
+            </div>
+            <div class="sensor-value-row">
+              <div class="label">Producción total reportada</div>
+              <div class="value">15,240<span class="unit"> ton</span></div>
+            </div>
+            <div class="sensor-change positive">● +18% vs temporada anterior</div>
+            <div class="tab-content-grid" style="margin-top:12px">
+              <div class="data-item">
+                <div class="data-label">Precio promedio</div>
+                <div class="data-value">$420/ton</div>
+              </div>
+              <div class="data-item">
+                <div class="data-label">Demanda actual</div>
+                <div class="data-value" style="color:var(--accent-green)">Alta</div>
+              </div>
+            </div>
+          </div>
+          <div class="sensor-card">
+            <div class="sensor-card-header">
+              <div class="sensor-badge">
+                <div class="sensor-icon" style="background:rgba(245,158,11,0.15);color:#f59e0b">👨‍🌾</div>
+                <div>
+                  <div class="sensor-label">Guasave — 12 productores</div>
+                  <div class="sensor-name">Frijol Azufrado</div>
+                </div>
+              </div>
+            </div>
+            <div class="sensor-value-row">
+              <div class="label">Producción total reportada</div>
+              <div class="value">2,890<span class="unit"> ton</span></div>
+            </div>
+            <div class="sensor-change negative">● -5% vs temporada anterior</div>
+            <div class="tab-content-grid" style="margin-top:12px">
+              <div class="data-item">
+                <div class="data-label">Precio promedio</div>
+                <div class="data-value">$850/ton</div>
+              </div>
+              <div class="data-item">
+                <div class="data-label">Demanda actual</div>
+                <div class="data-value" style="color:var(--accent-amber)">Media</div>
+              </div>
+            </div>
+          </div>
+          <div class="sensor-card">
+            <div class="sensor-card-header">
+              <div class="sensor-badge">
+                <div class="sensor-icon" style="background:rgba(139,92,246,0.15);color:#8b5cf6">👨‍🌾</div>
+                <div>
+                  <div class="sensor-label">Ahome — 8 productores</div>
+                  <div class="sensor-name">Papa</div>
+                </div>
+              </div>
+            </div>
+            <div class="sensor-value-row">
+              <div class="label">Producción total reportada</div>
+              <div class="value">3,980<span class="unit"> ton</span></div>
+            </div>
+            <div class="sensor-change positive">● +22% vs temporada anterior</div>
+            <div class="tab-content-grid" style="margin-top:12px">
+              <div class="data-item">
+                <div class="data-label">Precio promedio</div>
+                <div class="data-value">$610/ton</div>
+              </div>
+              <div class="data-item">
+                <div class="data-label">Demanda actual</div>
+                <div class="data-value" style="color:var(--accent-green)">Alta</div>
+              </div>
+            </div>
+          </div>
+          <div class="sensor-card">
+            <div class="sensor-card-header">
+              <div class="sensor-badge">
+                <div class="sensor-icon" style="background:rgba(239,68,68,0.15);color:#ef4444">👨‍🌾</div>
+                <div>
+                  <div class="sensor-label">El Fuerte — 10 productores</div>
+                  <div class="sensor-name">Sorgo</div>
+                </div>
+              </div>
+            </div>
+            <div class="sensor-value-row">
+              <div class="label">Producción total reportada</div>
+              <div class="value">1,650<span class="unit"> ton</span></div>
+            </div>
+            <div class="sensor-change negative">● -12% vs temporada anterior</div>
+            <div class="tab-content-grid" style="margin-top:12px">
+              <div class="data-item">
+                <div class="data-label">Precio promedio</div>
+                <div class="data-value">$320/ton</div>
+              </div>
+              <div class="data-item">
+                <div class="data-label">Demanda actual</div>
+                <div class="data-value" style="color:var(--accent-green)">Alta</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Simulador de precio -->
+        <div class="active-section">
+          <div class="active-header">
+            <h3>📈 Simulador de Fluctuación de Precio</h3>
+          </div>
+          <div class="cultivo-card">
+            <div class="cultivo-info">
+              <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:16px">Ajusta tu producción estimada
+                para ver cómo impactaría el precio de mercado según oferta y demanda regional.</p>
+              <div style="margin-bottom:16px">
+                <label style="font-size:0.8rem;color:var(--text-muted);display:block;margin-bottom:6px">Cultivo</label>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  <button class="filter-btn active" data-sim-crop="maiz" onclick="simCrop(this)">🌽 Maíz</button>
+                  <button class="filter-btn" data-sim-crop="trigo" onclick="simCrop(this)">🌾 Trigo</button>
+                  <button class="filter-btn" data-sim-crop="soja" onclick="simCrop(this)">🫘 Soja</button>
+                  <button class="filter-btn" data-sim-crop="tomate" onclick="simCrop(this)">🍅 Tomate</button>
+                </div>
+              </div>
+              <div style="margin-bottom:8px">
+                <label style="font-size:0.8rem;color:var(--text-muted);display:block;margin-bottom:6px">Tu producción
+                  estimada: <strong id="simTonLabel" style="color:var(--text-primary)">50 toneladas</strong></label>
+                <div class="ciclo-slider"><input type="range" id="simSlider" min="10" max="500" value="50"></div>
+                <div
+                  style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--text-muted);margin-top:4px">
+                  <span>10 ton</span><span>500 ton</span>
+                </div>
+              </div>
+              <div class="tab-content-grid" style="margin-top:16px">
+                <div class="data-item">
+                  <div class="data-label">Precio actual del mercado</div>
+                  <div class="data-value" id="simPrecioActual">$420/ton</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Precio estimado con tu producción</div>
+                  <div class="data-value" id="simPrecioEstimado" style="color:var(--accent-green)">$418/ton</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Variación del precio</div>
+                  <div class="data-value" id="simVariacion" style="color:var(--accent-amber)">-0.5%</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Ingreso bruto estimado</div>
+                  <div class="data-value" id="simIngreso" style="color:var(--accent-green)">$20,900</div>
+                </div>
+              </div>
+            </div>
+            <div class="ciclo-panel">
+              <h4>Impacto en el Mercado</h4>
+              <div class="ciclo-sub">Oferta vs Demanda regional</div>
+              <div class="tab-content-grid" style="margin-top:14px">
+                <div class="data-item">
+                  <div class="data-label">Oferta total regional</div>
+                  <div class="data-value" id="simOferta">1,290 ton</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Demanda estimada</div>
+                  <div class="data-value" id="simDemanda">1,500 ton</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Balance</div>
+                  <div class="data-value" id="simBalance" style="color:var(--accent-green)">Déficit: +210 ton</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Recomendación</div>
+                  <div class="data-value" id="simRecom" style="color:var(--accent-green)">✅ Producir más</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN: Bolsa de Chicago (CBOT) -->
+        <div class="active-section" style="margin-top: 30px;">
+          <div class="active-header" style="display:flex; justify-content:space-between; align-items:center;">
+            <h3>📈 Mercado de Futuros — Chicago (CBOT)</h3>
+            <span id="cbotLastUpdate" style="font-size:0.75rem;color:var(--text-muted);">Últ. actualización: --</span>
+          </div>
+
+          <!-- Ticker de precio principal -->
+          <div class="sensor-cards" style="grid-template-columns:repeat(3, 1fr); margin-top: 14px;">
+            <div class="sensor-card" style="border-left:3px solid var(--accent-green)">
+              <div class="sensor-card-header">
+                <div class="sensor-badge">
+                  <div class="sensor-icon" style="background:rgba(16,185,129,0.15);color:#10b981">🌽</div>
+                  <div>
+                    <div class="sensor-label">CBOT Futures — Maíz (ZC)</div>
+                    <div class="sensor-name">Corn Dec 2026</div>
+                  </div>
+                </div>
+              </div>
+              <div class="sensor-value-row">
+                <div class="label">Precio por Bushel (USD)</div>
+                <div class="value" id="cbotPrecio" style="font-size:2rem">$4.52<span class="unit"> /bu</span></div>
+              </div>
+              <div class="sensor-change positive" id="cbotCambio">● +0.08 (+1.80%) hoy</div>
+            </div>
+
+            <div class="sensor-card" style="border-left:3px solid var(--accent-amber)">
+              <div class="sensor-card-header">
+                <div class="sensor-badge">
+                  <div class="sensor-icon" style="background:rgba(245,158,11,0.15);color:#f59e0b">💱</div>
+                  <div>
+                    <div class="sensor-label">Conversión Regional</div>
+                    <div class="sensor-name">Precio en MXN / Tonelada</div>
+                  </div>
+                </div>
+              </div>
+              <div class="sensor-value-row">
+                <div class="label">Equivalente Norte de Sinaloa</div>
+                <div class="value" id="cbotMXN" style="font-size:2rem">$4,280<span class="unit"> MXN/ton</span></div>
+              </div>
+              <div class="sensor-change positive" id="cbotMXNCambio">● Tipo de cambio: $17.15 MXN/USD</div>
+            </div>
+
+            <div class="sensor-card" style="border-left:3px solid var(--accent-purple)">
+              <div class="sensor-card-header">
+                <div class="sensor-badge">
+                  <div class="sensor-icon" style="background:rgba(139,92,246,0.15);color:#8b5cf6">🎯</div>
+                  <div>
+                    <div class="sensor-label">Precio Piso (ASERCA / Gob.)</div>
+                    <div class="sensor-name">Garantía Sinaloa 2026</div>
+                  </div>
+                </div>
+              </div>
+              <div class="sensor-value-row">
+                <div class="label">Precio de Garantía Vigente</div>
+                <div class="value" style="font-size:2rem">$4,150<span class="unit"> MXN/ton</span></div>
+              </div>
+              <div class="sensor-change positive">● Protección de ingreso activa</div>
+            </div>
+          </div>
+
+          <!-- Gráfica de precios CBOT y datos contrato -->
+          <div class="sensor-cards" style="grid-template-columns:2fr 1fr; margin-top: 18px;">
+            <div class="sensor-card" style="min-height:320px">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+                <h3 style="font-size:1rem">📉 Tendencia de Precios CBOT — Maíz (6 meses)</h3>
+                <div style="display:flex;gap:6px">
+                  <button class="filter-btn active" onclick="setCbotRange('6m', this)">6M</button>
+                  <button class="filter-btn" onclick="setCbotRange('1y', this)">1A</button>
+                  <button class="filter-btn" onclick="setCbotRange('3y', this)">3A</button>
+                </div>
+              </div>
+              <div style="position:relative;width:100%;height:240px">
+                <canvas id="chartCBOT" style="width:100%;height:100%"></canvas>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:0.7rem;color:var(--text-muted)">
+                <span>Nov 2025</span><span>Ene 2026</span><span>Mar 2026</span><span>Abr 2026</span>
+              </div>
+            </div>
+
+            <div class="sensor-card">
+              <h3 style="font-size:1rem;margin-bottom:14px">📊 Datos del Contrato</h3>
+              <div class="tab-content-grid">
+                <div class="data-item">
+                  <div class="data-label">Apertura</div>
+                  <div class="data-value" id="cbotOpen">$4.44 /bu</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Máximo del Día</div>
+                  <div class="data-value" id="cbotHigh" style="color:var(--accent-green)">$4.55 /bu</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Mínimo del Día</div>
+                  <div class="data-value" id="cbotLow" style="color:var(--accent-red)">$4.40 /bu</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Volumen</div>
+                  <div class="data-value" id="cbotVol">312,450</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Interés Abierto</div>
+                  <div class="data-value" id="cbotOI">1,245,800</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Cierre Anterior</div>
+                  <div class="data-value" id="cbotPrevClose">$4.44 /bu</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Historial semanal -->
+          <div class="active-section" style="margin-top: 20px;">
+            <div class="active-header">
+              <h3>📋 Historial Semanal de Precios CBOT (Maíz)</h3>
+            </div>
+            <div class="cultivo-card" style="grid-template-columns:1fr">
+              <table class="data-table" style="width:100%;text-align:left;border-collapse:collapse">
+                <thead>
+                  <tr style="border-bottom:1px solid var(--border-color);color:var(--text-muted)">
+                    <th style="padding:10px">Fecha</th>
+                    <th style="padding:10px">Cierre (USD/bu)</th>
+                    <th style="padding:10px">Cambio</th>
+                    <th style="padding:10px">Equiv. MXN/ton</th>
+                    <th style="padding:10px">Señal</th>
+                  </tr>
+                </thead>
+                <tbody id="cbotHistorial">
+                  <!-- Generado por JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Impacto Regional y Estrategia -->
+          <div class="sensor-cards" style="grid-template-columns:1fr 1fr; margin-top: 20px;">
+            <div class="sensor-card" style="border:1px solid rgba(16,185,129,0.2)">
+              <h3 style="font-size:1rem;margin-bottom:14px;color:var(--accent-green)">🌽 Impacto en Norte de Sinaloa</h3>
+              <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:14px">
+                El precio CBOT es la referencia mundial para fijar los precios de compra del maíz en el Valle del Fuerte.
+                Cuando el precio sube en Chicago, los compradores locales como <strong>Maseca, Cargill y Bachoco</strong>
+                ajustan al alza su precio base.
+              </p>
+              <div class="tab-content-grid">
+                <div class="data-item">
+                  <div class="data-label">Precio CBOT hoy</div>
+                  <div class="data-value" id="cbotImpactoPrecio" style="color:var(--accent-green)">$4.52 /bu</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Precio local Sinaloa</div>
+                  <div class="data-value" id="cbotImpactoLocal">$4,280 MXN/ton</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Margen vs Precio Garantía</div>
+                  <div class="data-value" id="cbotMargen" style="color:var(--accent-green)">+$130 MXN/ton</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Tendencia</div>
+                  <div class="data-value" id="cbotTendencia" style="color:var(--accent-green)">↗ Alcista</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="sensor-card" style="border:1px solid rgba(245,158,11,0.2)">
+              <h3 style="font-size:1rem;margin-bottom:14px;color:var(--accent-amber)">💡 Estrategia de Venta Recomendada</h3>
+              <div style="display:flex;flex-direction:column;gap:14px">
+                <div style="padding:14px;background:var(--bg-lighter);border-radius:8px;border-left:3px solid var(--accent-green)">
+                  <div style="font-weight:600;margin-bottom:4px">✅ Vender 40% ahora</div>
+                  <div style="font-size:0.82rem;color:var(--text-secondary)">El precio CBOT está por encima del promedio de 6 meses ($4.38). Asegurar ganancia con venta parcial a compradores del Valle del Fuerte.</div>
+                </div>
+                <div style="padding:14px;background:var(--bg-lighter);border-radius:8px;border-left:3px solid var(--accent-amber)">
+                  <div style="font-weight:600;margin-bottom:4px">⏳ Retener 40% (2-4 semanas)</div>
+                  <div style="font-size:0.82rem;color:var(--text-secondary)">Si la tendencia alcista se mantiene, podrías obtener $50-80 MXN/ton adicionales. Monitorea el reporte USDA de oferta y demanda.</div>
+                </div>
+                <div style="padding:14px;background:var(--bg-lighter);border-radius:8px;border-left:3px solid var(--accent-purple)">
+                  <div style="font-weight:600;margin-bottom:4px">🔒 Cubrir 20% con contrato futuro</div>
+                  <div style="font-size:0.82rem;color:var(--text-secondary)">Usar coberturas de ASERCA/FIRA para proteger el 20% restante ante una baja en CBOT por exceso de oferta global.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Factores que mueven el precio -->
+          <div class="sensor-cards" style="grid-template-columns:1fr; margin-top: 20px;">
+            <div class="sensor-card">
+              <h3 style="font-size:1rem;margin-bottom:14px">🌍 Factores que Mueven el Precio del Maíz en CBOT</h3>
+              <div class="sensor-cards" style="grid-template-columns:repeat(4, 1fr); gap:12px; margin-bottom: 0;">
+                <div style="padding:14px;background:var(--bg-lighter);border-radius:8px;text-align:center">
+                  <div style="font-size:1.5rem;margin-bottom:6px">🇺🇸</div>
+                  <div style="font-weight:600;font-size:0.85rem;margin-bottom:4px">Cosecha EE.UU.</div>
+                  <div style="font-size:0.78rem;color:var(--text-muted)">Cinturón del Maíz (Iowa, Illinois). Sequía = precios suben.</div>
+                </div>
+                <div style="padding:14px;background:var(--bg-lighter);border-radius:8px;text-align:center">
+                  <div style="font-size:1.5rem;margin-bottom:6px">🇨🇳</div>
+                  <div style="font-weight:600;font-size:0.85rem;margin-bottom:4px">Demanda China</div>
+                  <div style="font-size:0.78rem;color:var(--text-muted)">Mayor importador mundial. Compras masivas = precios suben.</div>
+                </div>
+                <div style="padding:14px;background:var(--bg-lighter);border-radius:8px;text-align:center">
+                  <div style="font-size:1.5rem;margin-bottom:6px">⛽</div>
+                  <div style="font-weight:600;font-size:0.85rem;margin-bottom:4px">Etanol</div>
+                  <div style="font-size:0.78rem;color:var(--text-muted)">40% del maíz de EE.UU. va a etanol. Precio del petróleo impacta.</div>
+                </div>
+                <div style="padding:14px;background:var(--bg-lighter);border-radius:8px;text-align:center">
+                  <div style="font-size:1.5rem;margin-bottom:6px">💵</div>
+                  <div style="font-weight:600;font-size:0.85rem;margin-bottom:4px">Dólar / Peso</div>
+                  <div style="font-size:0.78rem;color:var(--text-muted)">Dólar débil = maíz más caro en CBOT. Beneficio para Sinaloa.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE: Productos Recomendados -->
+      <div class="page" id="page-productos">
+        <div class="main-header">
+          <h2>Productos Recomendados</h2>
+          <div class="header-filters">
+            <button class="filter-btn active" onclick="filtrarProductos('Todos', this)">Todos</button>
+            <button class="filter-btn" onclick="filtrarProductos('Fertilizantes', this)">Fertilizantes</button>
+            <button class="filter-btn" onclick="filtrarProductos('Pesticidas', this)">Pesticidas</button>
+            <button class="filter-btn" onclick="filtrarProductos('Semillas', this)">Semillas</button>
+            <button class="filter-btn" onclick="filtrarProductos('Riego', this)">Sistemas de Riego</button>
+          </div>
+        </div>
+        <div class="sensor-cards" style="grid-template-columns:repeat(2,1fr)">
+          <!-- Producto 1: Urea -->
+          <div class="sensor-card" data-category="Fertilizantes" style="border-left:3px solid var(--accent-green); display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div class="sensor-card-header">
+                <div class="sensor-badge">
+                  <div class="sensor-icon" style="background:rgba(16,185,129,0.15);color:#10b981">🧪</div>
+                  <div>
+                    <div class="sensor-label">Fertilizante · Recomendado para tu suelo</div>
+                    <div class="sensor-name">Urea 46-0-0</div>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top:10px;font-size:0.85rem;color:var(--text-secondary);line-height:1.6">
+                Fertilizante nitrogenado de alta concentración, ideal para Maíz en fase de crecimiento. Tus niveles de Nitrógeno (N) en suelo se benefician de esta dosis.
+              </div>
+              <div class="tab-content-grid" style="margin-top:12px">
+                <div class="data-item">
+                  <div class="data-label">Dosis recomendada</div>
+                  <div class="data-value">150 kg/ha</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Precio referencia</div>
+                  <div class="data-value">$18.50/kg MXN</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Proveedor Local</div>
+                  <div class="data-value" style="color:var(--text-primary); font-weight:600;">Grupo Tepeyac</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Ubicación</div>
+                  <div class="data-value">📍 Los Mochis / Guasave</div>
+                </div>
+              </div>
+            </div>
+            <button class="btn-action primary" onclick="abrirContactoProveedor('tepeyac', 'Urea 46-0-0')" style="margin-top:14px; width:100%; padding:8px 0; font-size:0.8rem;">
+              🛒 Cotizar y Comprar
+            </button>
+          </div>
+
+          <!-- Producto 2: Cinta de Goteo -->
+          <div class="sensor-card" data-category="Riego" style="border-left:3px solid var(--accent-blue); display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div class="sensor-card-header">
+                <div class="sensor-badge">
+                  <div class="sensor-icon" style="background:rgba(59,130,246,0.15);color:#3b82f6">💧</div>
+                  <div>
+                    <div class="sensor-label">Sistema de Riego · Eficiencia hídrica</div>
+                    <div class="sensor-name">Cinta de Goteo T-Tape</div>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top:10px;font-size:0.85rem;color:var(--text-secondary);line-height:1.6">
+                Cinta de riego por goteo premium para optimizar el uso de agua en el Valle de El Fuerte. Reduce el consumo hídrico hasta un 40% vs surco tradicional.
+              </div>
+              <div class="tab-content-grid" style="margin-top:12px">
+                <div class="data-item">
+                  <div class="data-label">Presentación</div>
+                  <div class="data-value">1,000 m / rollo</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Precio referencia</div>
+                  <div class="data-value">$1,850/rollo MXN</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Proveedor Local</div>
+                  <div class="data-value" style="color:var(--text-primary); font-weight:600;">Driptec Riegos</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Ubicación</div>
+                  <div class="data-value">📍 Los Mochis, Sin.</div>
+                </div>
+              </div>
+            </div>
+            <button class="btn-action primary" onclick="abrirContactoProveedor('driptec', 'Cinta de Goteo T-Tape')" style="margin-top:14px; width:100%; padding:8px 0; font-size:0.8rem;">
+              🛒 Cotizar y Comprar
+            </button>
+          </div>
+
+          <!-- Producto 3: Bacillus Thuringiensis -->
+          <div class="sensor-card" data-category="Pesticidas" style="border-left:3px solid var(--accent-amber); display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div class="sensor-card-header">
+                <div class="sensor-badge">
+                  <div class="sensor-icon" style="background:rgba(245,158,11,0.15);color:#f59e0b">🐛</div>
+                  <div>
+                    <div class="sensor-label">Insecticida Biológico · Bajo impacto</div>
+                    <div class="sensor-name">Bacillus Thuringiensis</div>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top:10px;font-size:0.85rem;color:var(--text-secondary);line-height:1.6">
+                Control biológico efectivo para gusano cogollero y plagas de lepidópteros en maíz y hortalizas. Seguro para fauna benéfica.
+              </div>
+              <div class="tab-content-grid" style="margin-top:12px">
+                <div class="data-item">
+                  <div class="data-label">Aplicación</div>
+                  <div class="data-value">2.0 L/ha</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Precio referencia</div>
+                  <div class="data-value">$750/litro MXN</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Proveedor Local</div>
+                  <div class="data-value" style="color:var(--text-primary); font-weight:600;">Agroservicios AMSA</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Ubicación</div>
+                  <div class="data-value">📍 J.J. Ríos / Guasave</div>
+                </div>
+              </div>
+            </div>
+            <button class="btn-action primary" onclick="abrirContactoProveedor('amsa', 'Bacillus Thuringiensis')" style="margin-top:14px; width:100%; padding:8px 0; font-size:0.8rem;">
+              🛒 Cotizar y Comprar
+            </button>
+          </div>
+
+          <!-- Producto 4: Semilla de Maíz -->
+          <div class="sensor-card" data-category="Semillas" style="border-left:3px solid var(--accent-purple); display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div class="sensor-card-header">
+                <div class="sensor-badge">
+                  <div class="sensor-icon" style="background:rgba(139,92,246,0.15);color:#8b5cf6">🌱</div>
+                  <div>
+                    <div class="sensor-label">Semilla Certificada · Alto rendimiento</div>
+                    <div class="sensor-name">Maíz Híbrido DK-7210</div>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top:10px;font-size:0.85rem;color:var(--text-secondary);line-height:1.6">
+                Semilla certificada de maíz blanco con excelente tolerancia a la sequía y resistencia a la roya. Óptimo potencial de rendimiento en Sinaloa.
+              </div>
+              <div class="tab-content-grid" style="margin-top:12px">
+                <div class="data-item">
+                  <div class="data-label">Densidad siembra</div>
+                  <div class="data-value">85,000 sem/ha</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Precio referencia</div>
+                  <div class="data-value">$4,200/bolsa MXN</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Proveedor Local</div>
+                  <div class="data-value" style="color:var(--text-primary); font-weight:600;">Grupo Tepeyac</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Ubicación</div>
+                  <div class="data-value">📍 Los Mochis, Sin.</div>
+                </div>
+              </div>
+            </div>
+            <button class="btn-action primary" onclick="abrirContactoProveedor('tepeyac', 'Maíz Híbrido DK-7210')" style="margin-top:14px; width:100%; padding:8px 0; font-size:0.8rem;">
+              🛒 Cotizar y Comprar
+            </button>
+          </div>
+
+          <!-- Producto 5: Quelato Zinc + Boro -->
+          <div class="sensor-card" data-category="Fertilizantes" style="border-left:3px solid var(--accent-green); display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div class="sensor-card-header">
+                <div class="sensor-badge">
+                  <div class="sensor-icon" style="background:rgba(16,185,129,0.15);color:#10b981">🧪</div>
+                  <div>
+                    <div class="sensor-label">Fertilizante Foliar · Micronutrientes</div>
+                    <div class="sensor-name">Quelato de Zinc + Boro</div>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top:10px;font-size:0.85rem;color:var(--text-secondary);line-height:1.6">
+                Corrector foliar líquido de deficiencias. Aumenta la polinización, floración y el peso final de granos en cultivos locales de maíz y trigo.
+              </div>
+              <div class="tab-content-grid" style="margin-top:12px">
+                <div class="data-item">
+                  <div class="data-label">Dosis foliar</div>
+                  <div class="data-value">1.5 L/ha</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Precio referencia</div>
+                  <div class="data-value">$240/litro MXN</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Proveedor Local</div>
+                  <div class="data-value" style="color:var(--text-primary); font-weight:600;">Insumos Ceres</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Ubicación</div>
+                  <div class="data-value">📍 Los Mochis, Sin.</div>
+                </div>
+              </div>
+            </div>
+            <button class="btn-action primary" onclick="abrirContactoProveedor('ceres', 'Quelato de Zinc + Boro')" style="margin-top:14px; width:100%; padding:8px 0; font-size:0.8rem;">
+              🛒 Cotizar y Comprar
+            </button>
+          </div>
+
+          <!-- Producto 6: Fungicida -->
+          <div class="sensor-card" data-category="Pesticidas" style="border-left:3px solid var(--accent-red); display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div class="sensor-card-header">
+                <div class="sensor-badge">
+                  <div class="sensor-icon" style="background:rgba(239,68,68,0.15);color:#ef4444">🛡️</div>
+                  <div>
+                    <div class="sensor-label">Fungicida · Control Preventivo</div>
+                    <div class="sensor-name">Azoxistrobina 250 SC</div>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top:10px;font-size:0.85rem;color:var(--text-secondary);line-height:1.6">
+                Fungicida sistémico preventivo de amplio espectro. Altamente recomendado para el control de roya foliar, tizones y manchas foliares.
+              </div>
+              <div class="tab-content-grid" style="margin-top:12px">
+                <div class="data-item">
+                  <div class="data-label">Dosis recomendada</div>
+                  <div class="data-value">0.5 L/ha</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Precio referencia</div>
+                  <div class="data-value">$1,650/litro MXN</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Proveedor Local</div>
+                  <div class="data-value" style="color:var(--text-primary); font-weight:600;">Agroservicios AMSA</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Ubicación</div>
+                  <div class="data-value">📍 Guasave, Sin.</div>
+                </div>
+              </div>
+            </div>
+            <button class="btn-action primary" onclick="abrirContactoProveedor('amsa', 'Azoxistrobina 250 SC')" style="margin-top:14px; width:100%; padding:8px 0; font-size:0.8rem;">
+              🛒 Cotizar y Comprar
+            </button>
+          </div>
+        </div>
+      </div>
+
+
+
+      <!-- PAGE: Comercialización -->
+      <div class="page" id="page-distribucion">
+        <div class="main-header">
+          <h2>Comercialización</h2>
+        </div>
+        <h3 style="margin-bottom:14px;font-size:1rem">🤝 Potenciales Compradores</h3>
+        <div class="sensor-cards" style="grid-template-columns:repeat(2,1fr)">
+          <div class="sensor-card">
+            <div class="sensor-card-header">
+              <div class="sensor-badge">
+                <div class="sensor-icon" style="background:rgba(16,185,129,0.15);color:#10b981">🏢</div>
+                <div>
+                  <div class="sensor-label">Empresa Agroindustrial</div>
+                  <div class="sensor-name">Grupo Maseca</div>
+                </div>
+              </div>
+            </div>
+            <div class="tab-content-grid" style="margin-top:12px">
+              <div class="data-item">
+                <div class="data-label">Cultivo de Interés</div>
+                <div class="data-value">🌽 Maíz Blanco</div>
+              </div>
+              <div class="data-item">
+                <div class="data-label">Demanda Actual</div>
+                <div class="data-value" style="color:var(--accent-green)">Alta (>5,000 ton)</div>
+              </div>
+              <div class="data-item">
+                <div class="data-label">Precio Compra</div>
+                <div class="data-value">$425/ton</div>
+              </div>
+              <div class="data-item">
+                <div class="data-label">Ubicación</div>
+                <div class="data-value">Culiacán, Sin.</div>
+              </div>
+            </div>
+            <button class="btn-action primary" style="margin-top:14px;width:100%" onclick="abrirContactoComprador('maseca')">Contactar Comprador</button>
+          </div>
+          <div class="sensor-card">
+            <div class="sensor-card-header">
+              <div class="sensor-badge">
+                <div class="sensor-icon" style="background:rgba(139,92,246,0.15);color:#8b5cf6">🛒</div>
+                <div>
+                  <div class="sensor-label">Distribuidor Mayorista</div>
+                  <div class="sensor-name">Central de Abastos Norte</div>
+                </div>
+              </div>
+            </div>
+            <div class="tab-content-grid" style="margin-top:12px">
+              <div class="data-item">
+                <div class="data-label">Cultivo de Interés</div>
+                <div class="data-value">🫘 Frijol / Tomate</div>
+              </div>
+              <div class="data-item">
+                <div class="data-label">Demanda Actual</div>
+                <div class="data-value" style="color:var(--accent-amber)">Media (500 ton)</div>
+              </div>
+              <div class="data-item">
+                <div class="data-label">Precio Compra</div>
+                <div class="data-value">$850/ton (Frijol)</div>
+              </div>
+              <div class="data-item">
+                <div class="data-label">Ubicación</div>
+                <div class="data-value">Los Mochis, Sin.</div>
+              </div>
+            </div>
+            <button class="btn-action primary" style="margin-top:14px;width:100%" onclick="abrirContactoComprador('abastos')">Contactar Comprador</button>
+          </div>
+        </div>
+
+        <div class="active-section" style="margin-top:30px">
+          <div class="active-header" style="display:flex; justify-content:space-between; align-items:center;">
+            <h3>⚖️ Proyección y Comparativa de Cultivos</h3>
+          </div>
+          
+          <div class="cultivo-card" style="grid-template-columns:1fr; margin-bottom: 20px; padding: 20px;">
+            <div class="cultivo-info" style="display:flex; gap:16px; flex-wrap:wrap; align-items:center;">
+              <div style="flex:1; min-width:200px;">
+                <label style="font-size:0.8rem;color:var(--text-muted);display:block;margin-bottom:6px">Selecciona Parcela a Evaluar</label>
+                <select id="compParcelaSelect" class="input-field" style="width:100%;" onchange="calcularComparativaCultivos()">
+                  <!-- Cargar parcelas dinámicamente -->
+                </select>
+              </div>
+              <div style="flex:1; min-width:200px;">
+                <label style="font-size:0.8rem;color:var(--text-muted);display:block;margin-bottom:6px">Presupuesto Disponible por ha (USD)</label>
+                <input type="number" id="compPresupuestoInput" class="input-field" style="width:100%;" value="1200" min="100" oninput="calcularComparativaCultivos()">
+              </div>
+            </div>
+          </div>
+
+          <div class="cultivo-card" style="grid-template-columns:1fr">
+            <table class="data-table" style="width:100%;text-align:left;border-collapse:collapse;margin-top:10px">
+              <thead>
+                <tr style="border-bottom:1px solid var(--border-color);color:var(--text-muted)">
+                  <th style="padding:10px">Cultivo</th>
+                  <th style="padding:10px">Inversión Total</th>
+                  <th style="padding:10px">Rend. Proyectado</th>
+                  <th style="padding:10px">Precio Proyectado</th>
+                  <th style="padding:10px">Ganancia Neta</th>
+                  <th style="padding:10px">ROI</th>
+                  <th style="padding:10px">Aptitud</th>
+                </tr>
+              </thead>
+              <tbody id="compTableBody">
+                <!-- Generado dinámicamente -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE: Logística y Transporte -->
+      <div class="page" id="page-logistica">
+        <div class="main-header">
+          <h2>Logística y Operación de Carga</h2>
+        </div>
+        <div class="sensor-cards" style="grid-template-columns:1fr 1fr">
+          <div class="sensor-card">
+            <div class="sensor-card-header">
+              <div class="sensor-badge">
+                <div class="sensor-icon" style="background:rgba(59,130,246,0.15);color:#3b82f6">🧮</div>
+                <div>
+                  <div class="sensor-label">Calculadora Regional</div>
+                  <div class="sensor-name">Cotizador de Flete</div>
+                </div>
+              </div>
+            </div>
+            <div class="form-group" style="margin-top:14px">
+              <label>Destino Principal</label>
+              <select id="fleteDestino" class="input-field" style="width:100%;margin-bottom:10px"
+                onchange="if(this.value !== 'custom') { document.getElementById('fleteKm').value = this.value; } calcularFlete()">
+                <option value="25">Puerto de Topolobampo (25 km)</option>
+                <option value="60">Guasave (60 km)</option>
+                <option value="210">Culiacán (210 km)</option>
+                <option value="350">Mazatlán (350 km)</option>
+                <option value="910">Guadalajara (910 km)</option>
+                <option value="1430">Ciudad de México (1,430 km)</option>
+                <option value="custom">Otro (Ingresar Km abajo)</option>
+              </select>
+              
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div>
+                  <label>Distancia (km)</label>
+                  <input type="number" id="fleteKm" class="input-field" value="25" style="width:100%;margin-bottom:10px"
+                    oninput="document.getElementById('fleteDestino').value = 'custom'; calcularFlete()">
+                </div>
+                <div>
+                  <label>Carga (Toneladas)</label>
+                  <input type="number" id="fleteTon" class="input-field" value="25" style="width:100%;margin-bottom:10px" oninput="calcularFlete()">
+                </div>
+              </div>
+
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div>
+                  <label>Precio Diésel (MXN/L)</label>
+                  <input type="number" id="fleteDieselPrice" class="input-field" value="24.85" step="0.01" style="width:100%;margin-bottom:10px" oninput="calcularFlete()">
+                </div>
+                <div>
+                  <label>Tipo de Ruta</label>
+                  <select id="fleteRutaType" class="input-field" style="width:100%;margin-bottom:10px" onchange="calcularFlete()">
+                    <option value="cuota">Autopista (Cuota)</option>
+                    <option value="libre">Carretera Libre</option>
+                  </select>
+                </div>
+              </div>
+              
+              <button class="btn-action primary" onclick="calcularFlete()" style="width:100%; margin-top:5px;">Recalcular Costo</button>
+            </div>
+            <div class="tab-content-grid"
+              style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border-color); display:grid; grid-template-columns:1fr 1fr; gap:10px">
+              <div class="data-item">
+                <div class="data-label">Vehículo Recomendado</div>
+                <div class="data-value" id="fleteVehiculo" style="font-size:0.9rem; font-weight:600;">-</div>
+              </div>
+              <div class="data-item">
+                <div class="data-label">Combustible (Diésel)</div>
+                <div class="data-value" id="fleteSubCombustible" style="font-size:0.95rem;">-</div>
+              </div>
+              <div class="data-item">
+                <div class="data-label">Peaje (Casetas)</div>
+                <div class="data-value" id="fleteSubCasetas" style="font-size:0.95rem;">-</div>
+              </div>
+              <div class="data-item">
+                <div class="data-label">Chofer & Mantenimiento</div>
+                <div class="data-value" id="fleteSubChofer" style="font-size:0.95rem;">-</div>
+              </div>
+              <div class="data-item" style="grid-column: span 2; border-top:1px dashed var(--border-color); padding-top:10px; margin-top:5px; display:flex; justify-content:space-between; align-items:center;">
+                <div class="data-label" style="font-size:0.95rem; font-weight:600; color:var(--text-primary);">Total Estimado</div>
+                <div class="data-value" id="fleteCosto" style="color:var(--accent-green); font-size:1.4rem; font-weight:700;">$0</div>
+              </div>
+            </div>
+          </div>
+          <div class="sensor-card">
+            <h3 style="font-size:1rem;margin-bottom:14px">🚛 Transportistas Locales & Nacionales</h3>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div style="padding:12px;background:var(--bg-lighter);border-radius:8px; border:1px solid rgba(255,255,255,0.02)">
+                <div style="display:flex;justify-content:space-between"><strong>Transportes Castores</strong><span
+                    style="color:var(--accent-green)">🟢 Disponible</span></div>
+                <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:4px">Tráiler Caja Seca (30 ton max) | Base Nacional</div>
+                <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px">Soporta fletes de larga distancia hacia CDMX/Guadalajara.</div>
+                <button class="btn-action secondary" onclick="abrirSolicitudTransporte('Transportes Castores', 30)" style="margin-top:8px;padding:6px 12px;font-size:0.75rem">Solicitar Cotización</button>
+              </div>
+              <div style="padding:12px;background:var(--bg-lighter);border-radius:8px; border:1px solid rgba(255,255,255,0.02)">
+                <div style="display:flex;justify-content:space-between"><strong>Fletes Barraza</strong><span
+                    style="color:var(--accent-green)">🟢 Disponible</span></div>
+                <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:4px">Torton Granelero (15 ton max) | Regional Sinaloa</div>
+                <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px">Servicio especializado para granos y tolvas en el estado.</div>
+                <button class="btn-action secondary" onclick="abrirSolicitudTransporte('Fletes Barraza', 15)" style="margin-top:8px;padding:6px 12px;font-size:0.75rem">Solicitar Cotización</button>
+              </div>
+              <div style="padding:12px;background:var(--bg-lighter);border-radius:8px; border:1px solid rgba(255,255,255,0.02)">
+                <div style="display:flex;justify-content:space-between"><strong>Logística Sinaloa</strong><span
+                    style="color:var(--accent-amber)">🟡 Reservas Mañana</span></div>
+                <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:4px">Rabon / Camión Ligero (5 ton max) | Valle del Fuerte</div>
+                <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px">Ideales para distribución rápida y hortalizas frescas.</div>
+                <button class="btn-action secondary" onclick="abrirSolicitudTransporte('Logística Sinaloa', 5)" style="margin-top:8px;padding:6px 12px;font-size:0.75rem">Reservar Unidad</button>
+              </div>
+              <div style="padding:12px;background:var(--bg-lighter);border-radius:8px; border:1px solid rgba(255,255,255,0.02)">
+                <div style="display:flex;justify-content:space-between"><strong>Transportes Ruiz</strong><span
+                    style="color:var(--accent-green)">🟢 Disponible</span></div>
+                <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:4px">Góndola / Tolva (35 ton max) | Zona Norte</div>
+                <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px">Especialidad en gran tonelaje y desalojo de bodegas.</div>
+                <button class="btn-action secondary" onclick="abrirSolicitudTransporte('Transportes Ruiz', 35)" style="margin-top:8px;padding:6px 12px;font-size:0.75rem">Solicitar Cotización</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE: Base de Datos -->
+      <div class="page" id="page-basedatos">
+        <div class="main-header">
+          <h2>Base de Datos</h2>
+        </div>
+        <div class="active-section">
+          <div class="active-header">
+            <h3>🗄️ Historial y Registros</h3>
+          </div>
+          <div class="cultivo-card" style="grid-template-columns:1fr">
+            <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:14px">Esta tabla almacena todos los
+              registros operativos del usuario y datos de mercado.</p>
+            <table class="data-table" id="dbTable" style="width:100%;text-align:left;border-collapse:collapse">
+              <thead>
+                <tr style="border-bottom:1px solid var(--border-color);color:var(--text-muted)">
+                  <th style="padding:10px">Fecha</th>
+                  <th style="padding:10px">Tipo de Registro</th>
+                  <th style="padding:10px">Descripción</th>
+                  <th style="padding:10px">Estado</th>
+                </tr>
+              </thead>
+              <tbody id="dbTableBody">
+                <!-- Logs generados dinámicamente -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE: Mi Perfil -->
+      <div class="page active" id="page-perfil">
+        <div class="main-header">
+          <h2>Mi Perfil</h2>
+          <div class="header-filters"><span id="userNameDisplay"
+              style="font-weight:bold;color:var(--accent-purple);">Usuario</span></div>
+        </div>
+
+        <!-- User Info Edit -->
+        <div class="sensor-card" style="margin-bottom: 20px;">
+          <div class="active-header" style="margin-bottom:14px">
+            <h3>👤 Datos de Usuario</h3>
+          </div>
+          <form id="formUsuario" onsubmit="guardarUsuario(event)">
+            <div style="display:flex;gap:16px;">
+              <div style="flex:1;">
+                <label style="display:block;margin-bottom:4px;font-size:0.85rem">Nombre Completo</label>
+                <input type="text" id="perfilNombre" class="input-field" placeholder="Ej. Juan Pérez"
+                  style="width:100%">
+              </div>
+              <div style="flex:1;">
+                <label style="display:block;margin-bottom:4px;font-size:0.85rem">Región Agrícola</label>
+                <input type="text" id="perfilRegion" class="input-field" placeholder="Ej. Valle del Fuerte"
+                  style="width:100%">
+              </div>
+            </div>
+            <button type="submit" class="btn-action primary" style="margin-top:14px;width:100%">Guardar Perfil</button>
+          </form>
+        </div>
+
+        <div class="sensor-cards" style="grid-template-columns:1fr 1fr">
+          <div class="sensor-card">
+            <div class="active-header" style="margin-bottom:14px">
+              <h3>📋 Ingreso de Análisis (Suelo/Agua)</h3>
+            </div>
+            <form id="formAnalisis" onsubmit="guardarAnalisis(event)">
+              <div style="margin-bottom:12px">
+                <label style="display:block;margin-bottom:4px;font-size:0.85rem">Nombre de la Parcela</label>
+                <select id="perfilParcela" class="input-field" required style="width:100%" onchange="cargarDatosAnalisisParcela()">
+                  <!-- Cargado dinámicamente -->
+                </select>
+              </div>
+              <div style="margin-bottom:12px">
+                <label style="display:block;margin-bottom:4px;font-size:0.85rem">Nivel de pH</label>
+                <input type="number" step="0.1" id="perfilPh" class="input-field" required style="width:100%">
+              </div>
+              <div style="margin-bottom:12px">
+                <label style="display:block;margin-bottom:4px;font-size:0.85rem">Disponibilidad de Agua (1-10)</label>
+                <input type="number" min="1" max="10" id="perfilAgua" class="input-field" required style="width:100%">
+              </div>
+              <button type="submit" class="btn-action primary" style="width:100%">Guardar y Analizar</button>
+            </form>
+          </div>
+          <div class="sensor-card">
+            <div class="active-header" style="margin-bottom:14px">
+              <h3>💡 Recomendaciones de Riego</h3>
+            </div>
+            <div id="resultadoRiego"
+              style="padding:16px;background:var(--bg-lighter);border-radius:8px;text-align:center;color:var(--text-muted)">
+              Sube tu análisis de suelo y agua para obtener una recomendación personalizada de riego.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE: Análisis de Lote -->
+      <div class="page" id="page-analisis-lote">
+        <div class="main-header">
+          <h2>Análisis de Lote (Post-Producción)</h2>
+          <button class="btn-action primary" onclick="toggleAddLoteForm(true)">➕ Registrar Cosecha</button>
+        </div>
+
+        <!-- Formulario inline para registrar cosechas -->
+        <div class="inline-form-container" id="loteFormContainer">
+          <h3 style="margin-bottom: 14px; font-size: 1.1rem; color: var(--accent-purple);">Registrar Análisis de Cosecha</h3>
+          <form id="formLote" onsubmit="guardarLoteSubmit(event)">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Parcela Cosechada</label>
+                <select id="loteFormParcela" class="input-field" required>
+                  <!-- Cargado dinámicamente -->
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Rendimiento Obtenido (ton/ha)</label>
+                <input type="number" step="0.1" id="loteFormRendimiento" class="input-field" placeholder="Ej. 12.5" required>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Calidad del Grano/Fruto</label>
+                <select id="loteFormCalidad" class="input-field" required>
+                  <option value="Grado A (Premium)">Grado A (Premium)</option>
+                  <option value="Grado B (Estándar)">Grado B (Estándar)</option>
+                  <option value="Grado C (Comercial)">Grado C (Comercial)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Agua Consumida Total (m³/ha)</label>
+                <input type="number" id="loteFormAgua" class="input-field" placeholder="Ej. 4200" required>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Costo de Producción Total ($)</label>
+                <input type="number" id="loteFormCosto" class="input-field" placeholder="Ej. 10500" required>
+              </div>
+              <div class="form-group">
+                <label>Precio de Venta ($/ton)</label>
+                <input type="number" id="loteFormPrecioVenta" class="input-field" placeholder="Ej. 420" required>
+              </div>
+            </div>
+            <div class="card-actions">
+              <button type="button" class="btn-action secondary btn-small" onclick="toggleAddLoteForm(false)">Cancelar</button>
+              <button type="submit" class="btn-action primary btn-small">Registrar Lote</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="cultivo-card" style="grid-template-columns:1fr; margin-top: 20px;">
+          <div class="cultivo-info">
+            <h3 style="margin-bottom:12px">Selecciona un lote cosechado para análisis</h3>
+            <select class="input-field" id="loteSelectDropdown" style="width:100%;margin-bottom:16px"
+              onchange="mostrarAnalisisLote(this.value)">
+              <!-- Cargado dinámicamente -->
+            </select>
+
+            <div id="loteDetalle" style="display:none">
+              <div class="tab-content-grid">
+                <div class="data-item">
+                  <div class="data-label">Rendimiento Final</div>
+                  <div class="data-value" id="lblLoteRendimiento" style="color:var(--accent-green)">-</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Calidad</div>
+                  <div class="data-value" id="lblLoteCalidad">-</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Consumo de Agua Total</div>
+                  <div class="data-value" id="lblLoteAgua">-</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Rentabilidad</div>
+                  <div class="data-value" id="lblLoteRoi" style="color:var(--accent-green)">-</div>
+                </div>
+              </div>
+              <div
+                style="margin-top:20px;padding:16px;border:1px solid var(--accent-purple);border-radius:8px;background:rgba(139,92,246,0.05)">
+                <h4 style="color:var(--accent-purple);margin-bottom:8px">🤖 Recomendación para el Siguiente Ciclo</h4>
+                <p style="font-size:0.85rem;color:var(--text-secondary)" id="lblLoteRecomendacion">No hay recomendación disponible.</p>
+              </div>
+            </div>
+            
+            <div id="loteVacio" style="display:block; text-align:center; padding: 20px; color:var(--text-secondary)">
+              No hay lotes registrados para esta selección. Registra una nueva cosecha.
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- PAGE: Simulador Terreno -->
+      <div class="page" id="page-simulador-parcela">
+        <div class="main-header">
+          <h2>Simulador de Terreno (Aptitud de Siembra)</h2>
+        </div>
+        <p style="color:var(--text-muted);margin-bottom:16px">Simulación interactiva de 1 hectárea (100x100m). Haz clic
+          en las zonas marcadas para analizar la aptitud de la tierra antes de sembrar.</p>
+
+        <div style="display:flex;gap:16px;margin-bottom:16px;font-size:0.85rem">
+          <div style="display:flex;align-items:center;gap:6px"><span
+              style="display:inline-block;width:12px;height:12px;background:rgba(16,185,129,0.8);border-radius:2px"></span>
+            <span>Bueno para sembrar</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px"><span
+              style="display:inline-block;width:12px;height:12px;background:rgba(245,158,11,0.8);border-radius:2px"></span>
+            <span>Regular (Requiere trato)</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px"><span
+              style="display:inline-block;width:12px;height:12px;background:rgba(239,68,68,0.8);border-radius:2px"></span>
+            <span>No recomendable</span>
+          </div>
+        </div>
+
+        <div class="sensor-cards" style="grid-template-columns:1fr 300px">
+          <div class="sensor-card"
+            style="padding:16px;display:flex;justify-content:center;align-items:center;background:var(--bg-secondary)">
+            <div id="terrainGrid" class="terrain-grid" style="width:100%;aspect-ratio:1;max-width:500px">
+              <!-- Grid generated by JS -->
+            </div>
+          </div>
+          <div class="sensor-card">
+            <h3 style="font-size:1.1rem;margin-bottom:14px;color:var(--accent-purple)">Datos de la Celda</h3>
+            <div id="simCellDetails" style="display:none">
+              <div class="data-item" style="margin-bottom:12px">
+                <div class="data-label">Salinidad (CE)</div>
+                <div class="data-value" id="simCellSal">-- dS/m</div>
+              </div>
+              <div class="data-item" style="margin-bottom:12px">
+                <div class="data-label">Humedad</div>
+                <div class="data-value" id="simCellHum">-- %</div>
+              </div>
+              <div class="data-item" style="margin-bottom:12px">
+                <div class="data-label">Aptitud</div>
+                <div class="data-value" id="simCellApt">--</div>
+              </div>
+              <div style="margin-top:20px;padding:12px;background:var(--bg-lighter);border-radius:8px">
+                <h4 style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:6px">🌱 Recomendación:</h4>
+                <p style="font-size:0.8rem" id="simCellRec">--</p>
+              </div>
+              <div id="simCellActions" style="margin-top:20px;display:flex;flex-direction:column;gap:8px">
+                <button onclick="aplicarRiegoCelda()" class="btn-action primary" style="width:100%;font-size:0.85rem;padding:8px 12px;background:#3b82f6;border-color:#3b82f6;color:#fff">Aplicar Riego 💧</button>
+                <button onclick="aplicarYesoCelda()" class="btn-action secondary" style="width:100%;font-size:0.85rem;padding:8px 12px">Aplicar Yeso Agrícola 🧂</button>
+              </div>
+            </div>
+            <div id="simCellEmpty" style="color:var(--text-muted);font-size:0.85rem;text-align:center;margin-top:40px">
+              Haz clic en un cuadro del mapa para inspeccionar.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE: Asistente IA -->
+      <div class="page" id="page-ia">
+        <div class="main-header">
+          <h2>Asistente Agrointeligente IA</h2>
+          <span class="badge-beta" style="padding:6px 12px">Sinaloa Norte</span>
+        </div>
+        <div class="chat-container">
+          <div class="chat-messages" id="chatMessages">
+            <div class="chat-msg bot">
+              ¡Hola! Soy tu Asistente Agrointeligente entrenado con datos del Valle del Fuerte, Sinaloa. 🚜<br>Puedes
+              preguntarme sobre:<br>- Precios del Maíz o Frijol.<br>- Recomendaciones de Riego.<br>- Control de plagas
+              locales.<br>- Salinidad en Ahome/Guasave.
+            </div>
+          </div>
+          <div class="chat-input-area">
+            <input type="text" id="chatInput" placeholder="Escribe tu pregunta agrícola aquí..."
+              onkeypress="handleChatEnter(event)">
+            <button onclick="enviarMensajeIA()">Enviar</button>
+          </div>
+        </div>
+      </div>
+
+
+
+    </main>
+
+    <!-- ===== RIGHT PANEL ===== -->
+    <aside class="right-panel">
+      <!-- Alert Card -->
+      <div class="alert-card">
+        <div class="alert-card-header">
+          <div class="brand">
+            <span class="brand-icon">🌱</span> SIPGAT
+          </div>
+          <span class="new-badge">Nuevo</span>
+        </div>
+        <h3>Alertas Inteligentes</h3>
+        <p>Sistema de monitoreo en tiempo real que analiza las condiciones de tus parcelas y genera alertas
+          automatizadas.</p>
+        <button class="btn-connect filled">Conectar Sensor 📡</button>
+        <button class="btn-connect outlined">Agregar Parcela 🗺️</button>
+      </div>
+
+      <!-- Alertas List -->
+      <div class="alertas-list">
+        <h4>Alertas Activas</h4>
+
+        <div class="alerta-item warning">
+          <div class="alerta-icon">⚠️</div>
+          <div class="alerta-text">
+            <div class="alerta-title">Riego necesario</div>
+            <div class="alerta-desc">Parcela Norte - Humedad del suelo por debajo del umbral óptimo</div>
+            <div class="alerta-time">Hace 23 min</div>
+          </div>
+        </div>
+
+        <div class="alerta-item danger pulse">
+          <div class="alerta-icon">🔴</div>
+          <div class="alerta-text">
+            <div class="alerta-title">Alerta de temperatura</div>
+            <div class="alerta-desc">Parcela Sur - Temperatura supera los 35°C</div>
+            <div class="alerta-time">Hace 45 min</div>
+          </div>
+        </div>
+
+        <div class="alerta-item info">
+          <div class="alerta-icon">💧</div>
+          <div class="alerta-text">
+            <div class="alerta-title">Pronóstico de lluvia</div>
+            <div class="alerta-desc">Se esperan precipitaciones en las próximas 6 horas</div>
+            <div class="alerta-time">Hace 1 hora</div>
+          </div>
+        </div>
+
+        <div class="alerta-item success">
+          <div class="alerta-icon">✅</div>
+          <div class="alerta-text">
+            <div class="alerta-title">Fertilización completada</div>
+            <div class="alerta-desc">Parcela Este - Aplicación de nitrógeno exitosa</div>
+            <div class="alerta-time">Hace 3 horas</div>
+          </div>
+        </div>
+
+        <div class="alerta-item warning">
+          <div class="alerta-icon">🐛</div>
+          <div class="alerta-text">
+            <div class="alerta-title">Riesgo de plagas</div>
+            <div class="alerta-desc">Parcela Oeste - Detectada presencia de áfidos</div>
+            <div class="alerta-time">Hace 5 horas</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- Modal de Contacto de Comprador -->
+  <div id="modalContacto" class="modal-container" style="display:none;">
+    <div class="modal-content sensor-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 id="modalCompradorNombre" style="color:var(--accent-purple); font-size:1.2rem; font-weight:600;">Contacto del Comprador</h3>
+        <button onclick="cerrarContactoModal()" style="background:none; border:none; color:var(--text-muted); font-size:1.6rem; cursor:pointer; line-height:1;">&times;</button>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:12px; text-align:left;">
+        <div style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.03); padding:12px; border-radius:8px; border:1px solid var(--border-color);">
+          <div style="font-size:1.3rem;">👤</div>
+          <div>
+            <div id="modalContactoRol" style="font-size:0.75rem; color:var(--text-muted);">Encargado de Compras</div>
+            <div id="modalContactoEncargado" style="font-weight:500; font-size:0.9rem;">-</div>
+          </div>
+        </div>
+        
+        <div style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.03); padding:12px; border-radius:8px; border:1px solid var(--border-color);">
+          <div style="font-size:1.3rem;">📞</div>
+          <div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">Teléfono / Celular</div>
+            <div id="modalContactoTelefono" style="font-weight:500; font-size:0.9rem;">-</div>
+          </div>
+        </div>
+        
+        <div style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.03); padding:12px; border-radius:8px; border:1px solid var(--border-color);">
+          <div style="font-size:1.3rem;">✉️</div>
+          <div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">Correo Electrónico</div>
+            <div id="modalContactoEmail" style="font-weight:500; font-size:0.9rem;">-</div>
+          </div>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.03); padding:12px; border-radius:8px; border:1px solid var(--border-color);">
+          <div style="font-size:1.3rem;">📍</div>
+          <div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">Dirección</div>
+            <div id="modalContactoDireccion" style="font-weight:500; font-size:0.85rem; line-height:1.4;">-</div>
+          </div>
+        </div>
+      </div>
+      
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px;">
+        <a id="btnWhatsAppDirect" href="#" target="_blank" class="btn-action primary" style="text-align:center; padding:10px 0; font-size:0.85rem; display:flex; align-items:center; justify-content:center; gap:6px; border-radius:var(--radius-md); font-weight:600; text-decoration:none;">
+          <span>💬</span> WhatsApp
+        </a>
+        <a id="btnEmailDirect" href="#" class="btn-action secondary" style="text-align:center; padding:10px 0; font-size:0.85rem; display:flex; align-items:center; justify-content:center; gap:6px; border-radius:var(--radius-md); font-weight:600; text-decoration:none;">
+          <span>✉️</span> Enviar Correo
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Solicitud de Flete -->
+  <div id="modalTransporte" class="modal-container" style="display:none;">
+    <div class="modal-content sensor-card" style="max-width:500px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 id="modalTransNombre" style="color:var(--accent-purple); font-size:1.2rem; font-weight:600;">Solicitar Unidad</h3>
+        <button onclick="cerrarTransporteModal()" style="background:none; border:none; color:var(--text-muted); font-size:1.6rem; cursor:pointer; line-height:1;">&times;</button>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:12px; text-align:left;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div>
+            <label style="font-size:0.75rem; color:var(--text-muted);">Empresa</label>
+            <input type="text" id="modalTransEmpresa" class="input-field" style="width:100%;" readonly>
+          </div>
+          <div>
+            <label style="font-size:0.75rem; color:var(--text-muted);">Contacto Directo</label>
+            <input type="text" id="modalTransTel" class="input-field" style="width:100%;" readonly>
+          </div>
+        </div>
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div>
+            <label style="font-size:0.75rem; color:var(--text-muted);">Origen</label>
+            <input type="text" id="modalTransOrigen" class="input-field" value="Valle de El Fuerte, Sin." style="width:100%;">
+          </div>
+          <div>
+            <label style="font-size:0.75rem; color:var(--text-muted);">Destino</label>
+            <input type="text" id="modalTransDestino" class="input-field" style="width:100%;" readonly>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div>
+            <label style="font-size:0.75rem; color:var(--text-muted);">Carga (Toneladas)</label>
+            <input type="number" id="modalTransCarga" class="input-field" style="width:100%;" oninput="recalcularModalCosto()">
+          </div>
+          <div>
+            <label style="font-size:0.75rem; color:var(--text-muted);">Producto</label>
+            <select id="modalTransProducto" class="input-field" style="width:100%;">
+              <option value="Maíz">Maíz Blanco</option>
+              <option value="Trigo">Trigo Harinero</option>
+              <option value="Tomate">Tomate Rojo</option>
+              <option value="Frijol">Frijol Azufrado</option>
+              <option value="Hortalizas">Hortalizas Mixtas</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div>
+            <label style="font-size:0.75rem; color:var(--text-muted);">Fecha de Salida</label>
+            <input type="date" id="modalTransFecha" class="input-field" style="width:100%;">
+          </div>
+          <div>
+            <label style="font-size:0.75rem; color:var(--text-muted);">Costo Estimado</label>
+            <input type="text" id="modalTransCosto" class="input-field" style="width:100%; color:var(--accent-green); font-weight:bold;" readonly>
+          </div>
+        </div>
+      </div>
+      
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px;">
+        <button onclick="confirmarSolicitudTransporte()" class="btn-action primary" style="padding:10px 0; font-size:0.85rem; font-weight:600; border-radius:var(--radius-md);">
+          Confirmar Solicitud
+        </button>
+        <button onclick="cerrarTransporteModal()" class="btn-action secondary" style="padding:10px 0; font-size:0.85rem; font-weight:600; border-radius:var(--radius-md);">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('[PWA] Service Worker registrado con éxito:', reg.scope))
+          .catch(err => console.error('[PWA] Error al registrar Service Worker:', err));
+      });
+    }
+  </script>
+</body>
+
+</html>
